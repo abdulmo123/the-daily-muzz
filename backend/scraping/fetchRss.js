@@ -67,4 +67,6 @@ async function fetchAllFeeds() {
   console.log(`Total articles inserted: ${totalCount}`);
 }
 
-fetchAllFeeds().then(() => pool.end());
+module.exports = { fetchAllFeeds }; 
+// run directly for (testing)
+// fetchAllFeeds().then(() => pool.end());
