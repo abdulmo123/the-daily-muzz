@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const { Pool } = require('pg');
 const Parser = require('rss-parser');
 const parser = new Parser();
@@ -18,7 +19,7 @@ const feeds = [
 
 async function insertArticle(article) {
   const query = `
-    INSERT INTO rss_articles (source, title, link, summary, pub_dt, image_url)
+    INSERT INTO tdm.rss_articles (source, title, link, summary, pub_dt, image_url)
     VALUES ($1, $2, $3, $4, $5, $6)
     ON CONFLICT (link) DO NOTHING
   `;
