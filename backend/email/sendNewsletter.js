@@ -37,6 +37,14 @@ async function sendNewsletter() {
                 ${a.summary || ""}
             </p>    
         `).join('\n');
+        
+        // load email template
+        const templatePath = path.join(__dirname, 'email', 'newsletter.html');
+        let template = fs.readFileSync(templatePath, 'utf8');
 
+        // replace placeholders in the email template
+        template = template
+            .replace('{{ date }}', new Date().toLocaleDateString())
+            .replace('{{ articles }}', articlesHtml);
     }
 }
