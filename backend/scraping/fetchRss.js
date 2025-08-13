@@ -1,16 +1,16 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-const { Pool } = require('pg');
+const pool = require('../db')
 const Parser = require('rss-parser');
 const parser = new Parser();
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432
-});
+// const pool = new Pool({
+//   user: process.env.DB_USER,
+//   host: process.env.DB_HOST,
+//   database: process.env.DB_NAME,
+//   password: process.env.DB_PASSWORD,
+//   port: process.env.DB_PORT || 5432
+// });
 
 const feeds = [
   { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
