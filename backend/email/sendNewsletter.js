@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path')
-require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const pool = require('../db')
 const nodemailer = require('nodemailer');
 
@@ -39,12 +39,30 @@ async function sendNewsletter() {
         `).join('\n');
         
         // load email template
-        const templatePath = path.join(__dirname, 'email', 'newsletter.html');
+        const templatePath = path.join(__dirname, 'newsletter.html');
         let template = fs.readFileSync(templatePath, 'utf8');
 
         // replace placeholders in the email template
         template = template
             .replace('{{ date }}', new Date().toLocaleDateString())
             .replace('{{ articles }}', articlesHtml);
+
+        // send email 
+        await transporter.sendMail({
+            from: `"The Daily Muzz" <${process.env.SMTP_USER}>`,
+            to: process.env.NEWSLETTER_TO,
+            subject: `The Daily Muzz Digest - ${new Date().toLocaleDateString()}`,
+            html: template
+        });
+
+        console.log("Newsletter email sent successfully!");
+    } catch (err) {
+        console.error('Error sending newsletter: ', err);
+    } finally {
+        pool.end();
     }
 }
+
+module.exports = { sendNewsletter }; 
+// run directly
+// sendNewsletter();
