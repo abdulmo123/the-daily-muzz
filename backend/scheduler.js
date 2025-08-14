@@ -1,5 +1,6 @@
-import cron from 'node-cron';
-import { fetchAllFeeds } from './scraping/fetchRss.js';
+const cron = require('node-cron');
+const { fetchAllFeeds } = require('./scraping/fetchRss');
+const { sendNewsletter } = require('./email/sendNewsletter');
 
 // run on startup
 (async () => {
@@ -7,6 +8,9 @@ import { fetchAllFeeds } from './scraping/fetchRss.js';
     try {
         await fetchAllFeeds();
         console.log('Initial RSS fetch completed!');
+
+        await sendNewsletter();
+        console.log('Newsletter sent successfully!');
     } catch (err) {
         console.error('Error during initial RSS fetch: ', err);
     }
@@ -18,6 +22,10 @@ cron.schedule('0 7 * * *', async () => {
     try {
         await fetchAllFeeds();
         console.log("RSS fetch completed successfully!");
+
+        await sendNewsletter();
+        console.log('Newsletter sent successfully!');
+        
     }
     catch (err) {
         console.error("Error running RSS fetch: ", err);
