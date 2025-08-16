@@ -1,6 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-const pool = require('../db')
+const pool = require('../db');
 const Parser = require('rss-parser');
 const parser = new Parser();
 
@@ -30,7 +30,7 @@ async function insertArticle(article) {
     article.link,
     article.summary || null,
     article.pub_dt || null,
-    article.img_url || null
+    article.image_url || null
   ];
 
   try {
@@ -43,14 +43,12 @@ async function insertArticle(article) {
 async function fetchAllFeeds() {
   let totalCount = 0;
 
-  const result = await pool.query('select source, feed_url from tdm.sources');
-  console.log('result ...', result.rows);
-
+  const result = await pool.query('SELECT source, feed_url FROM tdm.sources');
 
   for (const feedInfo of result.rows) {
     try {
       const rss = await parser.parseURL(feedInfo.feed_url);
-      console.log(`Fetched ${rss.items.length} articles from ${feedInfo.name}`);
+      console.log(`Fetched ${rss.items.length} articles from ${feedInfo.source}`);
 
       for (const item of rss.items) {
         await insertArticle({
@@ -59,12 +57,12 @@ async function fetchAllFeeds() {
           link: item.link,
           summary: item.contentSnippet || item.content || null,
           pub_dt: item.pubDate ? new Date(item.pubDate) : null,
-          img_url: item.enclosure?.url || null
+          image_url: null
         });
         totalCount++;
       }
     } catch (err) {
-      console.error(`Error fetching ${feedInfo.name}:`, err.message);
+      console.error(`Error fetching ${feedInfo.source}:`, err.message);
     }
   }
 

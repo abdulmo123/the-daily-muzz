@@ -19,8 +19,9 @@ async function sendNewsletter() {
     try {
         // fetch articles over last day
         const { rows: articles } = await pool.query(`
-            SELECT title, link, summary
-            FROM tdm.rss_articles
+            SELECT art.title, art.link, art.summary, src.logo_url
+            FROM tdm.rss_articles art
+            JOIN tdm.sources src on art.source = src.source
             WHERE pub_dt >= NOW() - INTERVAL '1 day'
             and sent = false
             ORDER BY pub_dt DESC
@@ -33,11 +34,13 @@ async function sendNewsletter() {
 
         // build HTML for articles
         const articlesHtml = articles.map(a => `
-            <p>
-                <strong><a href="${a.link}">${a.title}</a></strong><br>
-                ${a.img_url ? `<img src="${a.img_url}" alt="${a.title}" style="max-width:600px;"><br>` : ''}
-                ${a.summary || ""}
-            </p>    
+            <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                ${a.logo_url ? `<img src="${a.logo_url}" alt="${a.source}" style="width:50px; height:auto; margin-right:10px;">` : ''}
+                <div>
+                    <strong><a href="${a.link}" style="text-decoration:none; color:#000;">${a.title}</a></strong><br>
+                    ${a.summary || ""}
+                </div>
+            </div>
         `).join('\n');
         
         // load email template
