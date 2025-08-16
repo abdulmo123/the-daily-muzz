@@ -24,9 +24,13 @@ app.post('/subscribers', async (req, res) => {
 
         const subscriber = await addSubscriber({email});
 
+        if (!subscriber.success) {
+            return res.status(409).json({ message: subscriber.message });
+        }
+
         res.status(201).json({
             message: 'Subscriber added successfully!',
-            subscriber
+            email: subscriber.email.email
         });
     } catch (error) {
         console.error('Error adding subscriber:', error);
