@@ -31,7 +31,7 @@ app.post('/subscribers', async (req, res) => {
     } catch (error) {
         console.error('Error adding subscriber:', error);
         res.status(500).json({
-            message: 'Failed to add subscriber'
+            message: 'Subscriber already exists'
         });
     }
 });
