@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { TextField, Button, Container, Typography, Alert } from "@mui/material";
+import { addSubscriber } from "../api";
 
 const SubscriberForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -10,18 +11,15 @@ const SubscriberForm: React.FC = () => {
     setStatus(null);
 
     try {
-      const response = await fetch("http://localhost:3000/subscribers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+        const response = await addSubscriber(email);
+        console.log('Subscriber added successfully!', response.data);
 
-      if (response.ok) {
-        setStatus("success");
-        setEmail("");
-      } else {
-        setStatus("error");
-      }
+        if (response.ok) {
+            setStatus("success");
+            setEmail("");
+        } else {
+            setStatus("error");
+        }
     } catch (err) {
       console.error(err);
       setStatus("error");
