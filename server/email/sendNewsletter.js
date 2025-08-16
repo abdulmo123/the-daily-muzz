@@ -22,6 +22,7 @@ async function sendNewsletter() {
             SELECT title, link, summary
             FROM tdm.rss_articles
             WHERE pub_dt >= NOW() - INTERVAL '1 day'
+            and sent = false
             ORDER BY pub_dt DESC
         `); 
 
@@ -34,6 +35,7 @@ async function sendNewsletter() {
         const articlesHtml = articles.map(a => `
             <p>
                 <strong><a href="${a.link}">${a.title}</a></strong><br>
+                ${a.img_url ? `<img src="${a.img_url}" alt="${a.title}" style="max-width:600px;"><br>` : ''}
                 ${a.summary || ""}
             </p>    
         `).join('\n');
@@ -47,19 +49,26 @@ async function sendNewsletter() {
             .replace('{{ date }}', new Date().toLocaleDateString())
             .replace('{{ articles }}', articlesHtml);
 
+        // fetch subscribers list
+        const { rows: subscribers } = await pool.query('SELECT email from tdm.subscribers');
+        const recipientList = subscribers.map(e => e.email).join(', ');
+
         // send email 
         await transporter.sendMail({
             from: `"The Daily Muzz" <${process.env.SMTP_USER}>`,
-            to: process.env.NEWSLETTER_TO,
+            to: recipientList,
             subject: `The Daily Muzz Digest - ${new Date().toLocaleDateString()}`,
             html: template
         });
 
         console.log("Newsletter email sent successfully!");
+        const links = articles.map(a => a.link);
+        await pool.query('UPDATE tdm.rss_articles set sent = true where link = ANY($1)', [links]);
+        console.log('Set sent articles to true!');
     } catch (err) {
         console.error('Error sending newsletter: ', err);
     } finally {
-        pool.end();
+        // do nothing
     }
 }
 

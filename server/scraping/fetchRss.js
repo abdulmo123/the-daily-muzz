@@ -12,10 +12,10 @@ const parser = new Parser();
 //   port: process.env.DB_PORT || 5432
 // });
 
-const feeds = [
-  { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
-  { name: 'Middle East Eye', url: 'https://www.middleeasteye.net/rss' }
-];
+// const feeds = [
+//   { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
+//   { name: 'Middle East Eye', url: 'https://www.middleeasteye.net/rss' }
+// ];
 
 async function insertArticle(article) {
   const query = `
@@ -43,14 +43,18 @@ async function insertArticle(article) {
 async function fetchAllFeeds() {
   let totalCount = 0;
 
-  for (const feedInfo of feeds) {
+  const result = await pool.query('select source, feed_url from tdm.sources');
+  console.log('result ...', result.rows);
+
+
+  for (const feedInfo of result.rows) {
     try {
-      const rss = await parser.parseURL(feedInfo.url);
+      const rss = await parser.parseURL(feedInfo.feed_url);
       console.log(`Fetched ${rss.items.length} articles from ${feedInfo.name}`);
 
       for (const item of rss.items) {
         await insertArticle({
-          source: feedInfo.name,
+          source: feedInfo.source,
           title: item.title,
           link: item.link,
           summary: item.contentSnippet || item.content || null,
