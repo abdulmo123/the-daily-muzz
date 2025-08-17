@@ -22,8 +22,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Navigate to server directory
-        run: cd server
+    #   - name: Navigate to server directory
+    #     run: cd server
       
       - name: Display contents
         run: ls -la 
