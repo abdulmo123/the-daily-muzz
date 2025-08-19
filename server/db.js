@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const createClient = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-js');
 dotenv.config();
 
 const { Pool } = require('pg');
