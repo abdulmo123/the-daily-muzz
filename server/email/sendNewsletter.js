@@ -32,7 +32,7 @@ async function sendNewsletter() {
             articles = rows;
         } else if (process.env.DB_CLIENT === 'supabase') {
             const { data, error } = await db
-                .from('tdm.rss_articles')
+                .from('rss_articles')
                 .select('title, link, summary, source, tdm.sources!inner(logo_url)')
                 .gte('pub_dt', new Date(Date.now() - 24 * 60 * 1000).toISOString())
                 .eq('sent', false)
@@ -80,7 +80,7 @@ async function sendNewsletter() {
             subscribers = rows;
         } else if (process.env.DB_CLIENT === 'supabase') {
             const { data, error } = await db
-                .from('tdm.subscribers')
+                .from('subscribers')
                 .select('email');
             if (error) throw error;
             subscribers = data;
@@ -98,11 +98,11 @@ async function sendNewsletter() {
         const links = articles.map(a => a.link);
         if (process.env.DB_CLIENT === 'pg') {
             const links = articles.map(a => a.link);
-            await db.query('UPDATE tdm.rss_articles SET sent = true WHERE link = ANY($1)', [links]);
+            await db.query('UPDATE rss_articles SET sent = true WHERE link = ANY($1)', [links]);
         } else if (process.env.DB_CLIENT === 'supabase') {
             const links = articles.map(a => a.link);
             const { error } = await db
-                .from('tdm.rss_articles')
+                .from('rss_articles')
                 .update({ sent: true })
                 .in('link', links);
             if (error) throw error;

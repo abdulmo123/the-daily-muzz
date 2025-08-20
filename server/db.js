@@ -17,7 +17,9 @@ if (process.env.DB_CLIENT === 'pg') {
 } else if (process.env.DB_CLIENT === 'supabase') {
     db = createClient(
         process.env.SUPABASE_URL,
-        process.env.SUPABASE_API_KEY
+        process.env.SUPABASE_API_KEY, {
+            schema: 'tdm'
+        }
     );
 } else {
     throw new Error('No client specified ... (use pg or supabase) ')
