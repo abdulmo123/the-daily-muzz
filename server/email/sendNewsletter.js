@@ -33,7 +33,7 @@ async function sendNewsletter() {
         } else if (process.env.DB_CLIENT === 'supabase') {
             const { data, error } = await db
                 .from('rss_articles')
-                .select('title,link,summary,source,tdm.sources!inner(logo_url)')
+                .select('title,link,summary,source,sources!inner(logo_url)')
                 .gte('pub_dt', new Date(Date.now() - 24 * 60 * 1000).toISOString())
                 .eq('sent', false)
                 .order('pub_dt', { ascending: false });

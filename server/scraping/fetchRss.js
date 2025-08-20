@@ -1,6 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-const pool = require('../db');
+const db = require('../db');
 const Parser = require('rss-parser');
 const parser = new Parser();
 
@@ -35,7 +35,7 @@ async function insertArticle(article) {
     ];
 
     try {
-      await pool.query(query, values);
+      await db.query(query, values);
     } catch (err) {
       console.error('Error inserting RSS article:', err);
     }
@@ -62,10 +62,10 @@ async function fetchAllFeeds() {
   let sources = [];
 
   if (process.env.DB_CLIENT === 'pg') {
-    const result = await pool.query('SELECT source, feed_url FROM tdm.sources');
+    const result = await db.query('SELECT source, feed_url FROM tdm.sources');
     sources = result.rows;
   } else if (process.env.DB_CLIENT === 'supabase') {
-    const { data, error } = await pool.from('sources').select('source, feed_url');
+    const { data, error } = await db.from('sources').select('source, feed_url');
     if (error) {
       console.error("Error fetching sources from Supabase", error.message);
       return;
