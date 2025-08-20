@@ -41,7 +41,7 @@ async function insertArticle(article) {
     }
   } else if (process.env.DB_CLIENT === 'supabase') {
     const { error } = await db
-      .from('rss_articles')
+      .from('tdm.rss_articles')
       .upsert({
         source: article.source,
         title: article.title,
@@ -65,7 +65,7 @@ async function fetchAllFeeds() {
     const result = await pool.query('SELECT source, feed_url FROM tdm.sources');
     sources = result.rows;
   } else if (process.env.DB_CLIENT === 'supabase') {
-    const { data, error } = await pool.from('sources').select('source, feed_url');
+    const { data, error } = await pool.from('tdm.sources').select('source, feed_url');
     if (error) {
       console.error("Error fetching sources from Supabase", error.message);
       return;

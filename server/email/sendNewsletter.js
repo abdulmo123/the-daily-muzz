@@ -3,6 +3,7 @@ const path = require('path')
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const pool = require('../db')
 const nodemailer = require('nodemailer');
+const db = require('../db');
 
 // email transporter
 const transporter = nodemailer.createTransport({
@@ -17,15 +18,35 @@ const transporter = nodemailer.createTransport({
 
 async function sendNewsletter() {
     try {
+        let articles;
         // fetch articles over last day
-        const { rows: articles } = await pool.query(`
-            SELECT art.title, art.link, art.summary, src.logo_url
-            FROM tdm.rss_articles art
-            JOIN tdm.sources src on art.source = src.source
-            WHERE pub_dt >= NOW() - INTERVAL '1 day'
-            and sent = false
-            ORDER BY pub_dt DESC
-        `); 
+        if (process.env.DB_CLIENT === 'pg') {
+            const { rows } = await pool.query(`
+                SELECT art.title, art.link, art.summary, src.logo_url
+                FROM tdm.rss_articles art
+                JOIN tdm.sources src on art.source = src.source
+                WHERE pub_dt >= NOW() - INTERVAL '1 day'
+                and sent = false
+                ORDER BY pub_dt DESC
+            `); 
+            articles = rows;
+        } else if (process.env.DB_CLIENT === 'supabase') {
+            const { data, error } = await db
+                .from('tdm.rss_articles')
+                .select('title, link, summary, source, tdm.sources!inner(logo_url)')
+                .gte('pub_dt', new Date(Date.now() - 24 * 60 * 1000).toISOString())
+                .eq('sent', false)
+                .order('pub_dt', { ascending: false });
+
+                if (error) throw error;
+                articles = data.map(a => ({
+                    title: a.title,
+                    link: a.link,
+                    summary: a.summary,
+                    source: a.source,
+                    logo_url: a.sources.logo_url
+                }));
+        }
 
         if (!articles.length || articles.length === 0) {
             console.log('No new articles to send today.');
@@ -53,7 +74,17 @@ async function sendNewsletter() {
             .replace('{{ articles }}', articlesHtml);
 
         // fetch subscribers list
-        const { rows: subscribers } = await pool.query('SELECT email from tdm.subscribers');
+        let subscribers;
+        if (process.env.DB_CLIENT === 'pg') {
+            const { rows } = await pool.query('SELECT email from tdm.subscribers');
+            subscribers = rows;
+        } else if (process.env.DB_CLIENT === 'supabase') {
+            const { data, error } = await db
+                .from('tdm.subscribers')
+                .select('email');
+            if (error) throw error;
+            subscribers = data;
+        }
         const recipientList = subscribers.map(e => e.email).join(', ');
 
         // send email 
@@ -64,9 +95,20 @@ async function sendNewsletter() {
             html: template
         });
 
-        console.log("Newsletter email sent successfully!");
         const links = articles.map(a => a.link);
-        await pool.query('UPDATE tdm.rss_articles set sent = true where link = ANY($1)', [links]);
+        if (process.env.DB_CLIENT === 'pg') {
+            const links = articles.map(a => a.link);
+            await db.query('UPDATE tdm.rss_articles SET sent = true WHERE link = ANY($1)', [links]);
+        } else if (process.env.DB_CLIENT === 'supabase') {
+            const links = articles.map(a => a.link);
+            const { error } = await db
+                .from('tdm.rss_articles')
+                .update({ sent: true })
+                .in('link', links);
+            if (error) throw error;
+        }
+
+        console.log("Newsletter email sent successfully!");
         console.log('Set sent articles to true!');
     } catch (err) {
         console.error('Error sending newsletter: ', err);
