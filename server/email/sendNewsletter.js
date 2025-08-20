@@ -48,6 +48,7 @@ async function sendNewsletter() {
                 }));
         }
 
+        console.log('articles ...', articles);
         if (!articles.length || articles.length === 0) {
             console.log('No new articles to send today.');
             return;
