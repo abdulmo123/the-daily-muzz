@@ -18,7 +18,9 @@ if (process.env.DB_CLIENT === 'pg') {
     db = createClient(
         process.env.SUPABASE_URL,
         process.env.SUPABASE_API_KEY, {
-            schema: 'tdm'
+            db: {
+                schema: 'tdm'
+            }
         }
     );
 } else {
