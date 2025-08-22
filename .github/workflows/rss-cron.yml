@@ -1,4 +1,4 @@
-name: Daily RSS Newsletter
+name: The Daily Muzz RSS Newsletter
 
 on:
   schedule:
