@@ -31,21 +31,16 @@ async function sendNewsletter() {
             `); 
             articles = rows;
         } else if (process.env.DB_CLIENT === 'supabase') {
-            const { data, error } = await db
-                .from('rss_articles')
-                .select('title,link,summary,source,sources!inner(logo_url)')
-                .gte('pub_dt', new Date(Date.now() - 24 * 60 * 1000).toISOString())
-                .eq('sent', false)
-                .order('pub_dt', { ascending: false });
-
-                if (error) throw error;
-                articles = data.map(a => ({
-                    title: a.title,
-                    link: a.link,
-                    summary: a.summary,
-                    source: a.source,
-                    logo_url: a.sources.logo_url
-                }));
+            const { data, error } = await db.rpc('fetch_articles');
+            
+            if (error) throw error;
+            articles = data.map(a => ({
+                title: a.title,
+                link: a.link,
+                summary: a.summary,
+                source: a.source,
+                logo_url: a.logo_url
+            }));
         }
 
         console.log('articles ...', articles);
