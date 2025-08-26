@@ -24,13 +24,8 @@ app.post('/subscribers', async (req, res) => {
 
         const subscriber = await addSubscriber({email});
 
-        if (!subscriber.success) {
-            return res.status(409).json({ message: subscriber.message });
-        }
-
         res.status(201).json({
-            message: 'Subscriber added successfully!',
-            email: subscriber.email.email
+            message: 'Subscriber added successfully!'
         });
     } catch (error) {
         console.error('Error adding subscriber:', error);
@@ -39,6 +34,10 @@ app.post('/subscribers', async (req, res) => {
         });
     }
 });
+
+app.delete('/unsubscribe', async (req, res) => {
+
+})
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
