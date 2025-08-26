@@ -1,5 +1,6 @@
 const db = require('../db')
 
+// TODO: how to perform duplicate check (if email exists how to give different response message?)
 async function addSubscriber(subscriber) {
     console.log('subscriber ... ', subscriber);
     let email = subscriber.email;
@@ -27,7 +28,7 @@ async function addSubscriber(subscriber) {
         } else if (process.env.DB_CLIENT === 'supabase') {
             const { data, error } = await db
                 .from('subscribers')
-                .insert({email: email});
+                .insert({email: email}, {onConflict: 'email'});
             if (error) throw error;
             
         }
