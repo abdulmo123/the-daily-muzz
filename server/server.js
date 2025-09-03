@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { fetchArticles } = require('./scraping/fetchRss');
-const { addSubscriber } = require('./email/subscriber');
+const { addSubscriber, removeSubscriber } = require('./email/subscriber');
 
 const app = express();
 app.use(cors());
@@ -36,7 +36,21 @@ app.post('/subscribers', async (req, res) => {
 });
 
 app.delete('/unsubscribe', async (req, res) => {
+    try {
+        const { email } = req.body;
+        console.log('Received data:', { email });
 
+        const subscriber = await removeSubscriber({email});
+
+        res.status(200).json({
+            message: 'Subscriber removed successfully!'
+        });
+    } catch (error) {
+        console.error('Error removing subscriber:', error);
+        res.status(500).json({
+            message: 'Error removing subscriber'
+        });
+    }
 })
 
 app.listen(PORT, () => {

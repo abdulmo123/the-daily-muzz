@@ -2,7 +2,7 @@ const db = require('../db')
 
 // TODO: how to perform duplicate check (if email exists how to give different response message?)
 async function addSubscriber(subscriber) {
-    console.log('subscriber ... ', subscriber);
+    console.log('subscriber to be added ... ', subscriber);
     let email = subscriber.email;
     try {
         if (process.env.DB_CLIENT === 'pg') {
@@ -37,4 +37,30 @@ async function addSubscriber(subscriber) {
     }
 }
 
-module.exports = { addSubscriber };
+async function removeSubscriber(subscriber) {
+    console.log('subscriber to be deleted ...', subscriber);
+    let email = subscriber.email;
+    console.log('unsubscribe email ... ', email);
+
+    try {
+        if (process.env.DB_CLIENT === 'pg') {
+            const query = `
+                delete from tdm.subscribers
+                where email = $1
+                returning email;
+            `;
+
+            const result = await db.query(query, [email]);
+            if (result.rows.length != 0) {
+                return {
+                    success: true,
+                    email: result.rows[0]
+                };
+            }
+        }
+    } catch (err) {
+        console.error('Error deleting subscriber:', err);
+    }
+}
+
+module.exports = { addSubscriber, removeSubscriber };
