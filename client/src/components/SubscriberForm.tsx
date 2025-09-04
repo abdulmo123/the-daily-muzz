@@ -5,6 +5,7 @@ import { addSubscriber } from "../api";
 const SubscriberForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"success" | "error" | null>(null);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,16 +13,22 @@ const SubscriberForm: React.FC = () => {
 
     try {
         const response = await addSubscriber(email);
-        console.log('Subscriber added successfully!', response.data);
+        console.log('Subscriber added successfully!', response);
 
-        if (response.ok) {
-            setStatus("success");
-            setEmail("");
+        if (response.status === 201) {
+          setStatus("success");
+          setMessage(response.message);
+          setEmail("");
+        } else if (response.status === 409) {
+          setStatus("error");
+          setMessage(response.message);
+          setEmail("");
         } else {
-            setStatus("error");
-        }
+          setStatus("error");
+        } 
     } catch (err) {
       console.error(err);
+      setMessage("Failed to subscribe. Try again.")
       setStatus("error");
     }
   };
@@ -48,12 +55,12 @@ const SubscriberForm: React.FC = () => {
 
       {status === "success" && (
         <Alert severity="success" sx={{ mt: 2 }}>
-          Subscribed successfully!
+          {message}
         </Alert>
       )}
       {status === "error" && (
         <Alert severity="error" sx={{ mt: 2 }}>
-          Failed to subscribe. Try again.
+          {message}
         </Alert>
       )}
     </Container>
