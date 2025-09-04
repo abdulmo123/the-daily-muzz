@@ -17,14 +17,18 @@ async function addSubscriber(subscriber) {
             if (result.rows.length === 0) {
                 return {
                     success: false,
-                    message: "Email already subscribed!"
+                    message: "Email already subscribed!",
+                    status: 409
                 };
             }
 
-            return {
-                success: true,
-                email: result.rows[0]
-            };
+            else {
+                return {
+                    success: true,
+                    message: `Email: ${email} subscribed successfully!`,
+                    status: 201
+                };
+            }
         } else if (process.env.DB_CLIENT === 'supabase') {
             const { data, error } = await db
                 .from('subscribers')

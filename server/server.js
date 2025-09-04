@@ -17,16 +17,15 @@ app.get('/articles', async (req, res) => {
     }
 });
 
-app.post('/subscribers', async (req, res) => {
+app.post('/subscribe', async (req, res) => {
     try {
         const { email } = req.body;
         console.log('Received data:', { email });
 
         const subscriber = await addSubscriber({email});
+        console.log('response subscriber ... ', subscriber);
 
-        res.status(201).json({
-            message: 'Subscriber added successfully!'
-        });
+        res.json(subscriber);
     } catch (error) {
         console.error('Error adding subscriber:', error);
         res.status(500).json({
@@ -43,7 +42,8 @@ app.delete('/unsubscribe', async (req, res) => {
         const subscriber = await removeSubscriber({email});
 
         res.status(200).json({
-            message: 'Subscriber removed successfully!'
+            message: 'Subscriber removed successfully!',
+            status: 200
         });
     } catch (error) {
         console.error('Error removing subscriber:', error);
