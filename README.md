@@ -5,3 +5,4 @@ The Daily Muzz News Letter
 - Send email news letter + cron job 
 - User can subscribe to newsletter
 - User can unsubscribe from newsletter
+- ADD LANDING PAGE!
