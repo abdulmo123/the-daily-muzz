@@ -58,8 +58,15 @@ async function removeSubscriber(subscriber) {
             if (result.rows.length != 0) {
                 return {
                     success: true,
-                    email: result.rows[0]
+                    message: `Email: ${email} unsubscribed successfully!`,
+                    status: 200
                 };
+            } else {
+                return {
+                    success: false,
+                    message: `Email ${email} was not a subscriber.`,
+                    status: 404
+                }
             }
         }
     } catch (err) {

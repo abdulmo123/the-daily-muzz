@@ -5,6 +5,7 @@ import { removeSubscriber } from "../api"; // make sure this API exists
 const UnsubscribeForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"success" | "error" | null>(null);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +18,11 @@ const UnsubscribeForm: React.FC = () => {
       if (response.status === 200) {
         console.log('Response was ok ....')
         setStatus("success");
+        setMessage(response.message);
+        setEmail("");
+      } else if (response.status === 404) {
+        setStatus("error");
+        setMessage(response.message);
         setEmail("");
       } else {
         setStatus("error");
@@ -49,12 +55,12 @@ const UnsubscribeForm: React.FC = () => {
 
       {status === "success" && (
         <Alert severity="success" sx={{ mt: 2 }}>
-          You have been unsubscribed successfully.
+          {message}
         </Alert>
       )}
       {status === "error" && (
         <Alert severity="error" sx={{ mt: 2 }}>
-          Failed to unsubscribe. Please try again.
+          {message}
         </Alert>
       )}
     </Container>

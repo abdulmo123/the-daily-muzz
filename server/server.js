@@ -41,10 +41,7 @@ app.delete('/unsubscribe', async (req, res) => {
 
         const subscriber = await removeSubscriber({email});
 
-        res.status(200).json({
-            message: 'Subscriber removed successfully!',
-            status: 200
-        });
+        res.json(subscriber);
     } catch (error) {
         console.error('Error removing subscriber:', error);
         res.status(500).json({
