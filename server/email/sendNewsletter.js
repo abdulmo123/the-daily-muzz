@@ -32,7 +32,7 @@ async function sendNewsletter() {
             articles = rows;
         } else if (process.env.DB_CLIENT === 'supabase') {
             const { data, error } = await db.rpc('fetch_articles');
-            
+
             if (error) throw error;
             articles = data.map(a => ({
                 title: a.title,
@@ -94,7 +94,7 @@ async function sendNewsletter() {
         const links = articles.map(a => a.link);
         if (process.env.DB_CLIENT === 'pg') {
             const links = articles.map(a => a.link);
-            await db.query('UPDATE rss_articles SET sent = true WHERE link = ANY($1)', [links]);
+            await db.query('UPDATE tdm.rss_articles SET sent = true WHERE link = ANY($1)', [links]);
         } else if (process.env.DB_CLIENT === 'supabase') {
             const links = articles.map(a => a.link);
             const { error } = await db
