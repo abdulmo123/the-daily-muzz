@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Container, Typography, TextField, Button, Grid, Card, CardContent } from "@mui/material";
-import { Email } from "@mui/icons-material";
+import EmailIcon from '@mui/icons-material/Email';
+import { useNavigate } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
   const [email, setEmail] = useState("");
+  const navigate = useNavigate();
 
   const handleSubscribe = () => {
-    // TODO: hook this up to your backend
-    alert(`Subscribed with: ${email}`);
-    setEmail("");
+    navigate('/subscribe');
   };
 
   return (
@@ -23,25 +23,13 @@ const LandingPage: React.FC = () => {
         </Typography>
 
         <div style={{ marginTop: "2rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
-          <TextField
-            type="email"
-            variant="outlined"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            InputProps={{
-              startAdornment: <Email style={{ marginRight: "0.5rem", color: "#777" }} />,
-            }}
-            style={{ width: "300px", background: "white", borderRadius: "6px" }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<EmailIcon />}
             onClick={handleSubscribe}
-            sx={{ borderRadius: "8px", px: 3 }}
           >
-            Subscribe
+          Click here to subscribe
           </Button>
         </div>
       </Container>
